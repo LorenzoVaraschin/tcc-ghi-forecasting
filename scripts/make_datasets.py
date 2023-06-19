@@ -1,10 +1,13 @@
 """
-Pytorch code to create the Datasets and Dataloaders used for training the models
+Pytorch code to create the Datasets used for training the models
 Datasets must be one of two:
 1. ExtraFeaturesOnly - dataset to use when training a model without the images
 2. ImagesAndExtraFeaturesOnly - dataset to use when training a model with the images
 """
-from torch.utils.data import Dataset, DataLoader
+import torch
+import numpy as np
+from torchvision.io import read_image
+from torch.utils.data import Dataset
 
 class ExtraFeaturesOnlyDataset(Dataset):
   """
