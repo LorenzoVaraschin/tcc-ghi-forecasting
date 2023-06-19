@@ -4,7 +4,7 @@ Datasets must be one of two:
 1. ExtraFeaturesOnly - dataset to use when training a model without the images
 2. ImagesAndExtraFeaturesOnly - dataset to use when training a model with the images
 """
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 class ExtraFeaturesOnlyDataset(Dataset):
   """
