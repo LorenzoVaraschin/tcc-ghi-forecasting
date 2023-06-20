@@ -103,94 +103,94 @@ shold have the same keys as presented in config.txt
 """
 
 
-img_transform = transforms.Compose([
-    transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
-    transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
-                         std=[0.229, 0.224, 0.225])
-])
+  img_transform = transforms.Compose([
+      transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
+      transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
+      transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
+                          std=[0.229, 0.224, 0.225])
+  ])
 
 
-if len(config["extra_features"]) > 0:  
-  #List comprehension where each list contains len(config["extra_feautres"]) elements, and each element is a tensor of shape [n_samples, 1]
-  train_extra_features_list = [torch.tensor(list(df_train[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]] 
-  test_extra_features_list = [torch.tensor(list(df_test[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]]
-  val_extra_features_list = [torch.tensor(list(df_val[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]]
+  if len(config["extra_features"]) > 0:  
+    #List comprehension where each list contains len(config["extra_feautres"]) elements, and each element is a tensor of shape [n_samples, 1]
+    train_extra_features_list = [torch.tensor(list(df_train[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]] 
+    test_extra_features_list = [torch.tensor(list(df_test[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]]
+    val_extra_features_list = [torch.tensor(list(df_val[feature][0::5]), dtype=torch.float32).unsqueeze(1) for feature in config["extra_features"]]
 
-  #Concatenate the lists along dim=1, resulting in a tensor of shape [n_samples, len(config["extra_features"])]
-  train_extra_features = torch.cat((train_extra_features_list), dim=1)
-  test_extra_features = torch.cat((test_extra_features_list), dim=1)
-  val_extra_features = torch.cat((val_extra_features_list), dim=1)
-else:
-  train_extra_features = None
-  test_extra_features = None
-  val_extra_features = None
+    #Concatenate the lists along dim=1, resulting in a tensor of shape [n_samples, len(config["extra_features"])]
+    train_extra_features = torch.cat((train_extra_features_list), dim=1)
+    test_extra_features = torch.cat((test_extra_features_list), dim=1)
+    val_extra_features = torch.cat((val_extra_features_list), dim=1)
+  else:
+    train_extra_features = None
+    test_extra_features = None
+    val_extra_features = None
 
-train_data = ImageAndExtraFeaturesDataset(
-  paths=df_train["path"][0::5],
-  transform=img_transform,
-  label=torch.tensor(list(df_train[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  datetime_index=df_train.index[0::5],
-  ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  future_ghi=torch.tensor(list(df_train["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  extra_features=train_extra_features
-)
+  train_data = ImageAndExtraFeaturesDataset(
+    paths=df_train["path"][0::5],
+    transform=img_transform,
+    label=torch.tensor(list(df_train[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    datetime_index=df_train.index[0::5],
+    ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    future_ghi=torch.tensor(list(df_train["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    extra_features=train_extra_features
+  )
 
-test_data = ImageAndExtraFeaturesDataset(
-  paths=df_test["path"][0::5],
-  transform=img_transform,
-  label=torch.tensor(list(df_test[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  datetime_index=df_test.index[0::5],
-  ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  future_ghi=torch.tensor(list(df_test["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  extra_features=test_extra_features
-)
+  test_data = ImageAndExtraFeaturesDataset(
+    paths=df_test["path"][0::5],
+    transform=img_transform,
+    label=torch.tensor(list(df_test[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    datetime_index=df_test.index[0::5],
+    ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    future_ghi=torch.tensor(list(df_test["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    extra_features=test_extra_features
+  )
 
-val_data = ImageAndExtraFeaturesDataset(
-  paths=df_val["path"][0::5],
-  transform=img_transform,
-  label=torch.tensor(list(df_val[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  datetime_index=df_val.index[0::5],
-  ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
-  future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  future_ghi=torch.tensor(list(df_val["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-  extra_features=val_extra_features
-)
+  val_data = ImageAndExtraFeaturesDataset(
+    paths=df_val["path"][0::5],
+    transform=img_transform,
+    label=torch.tensor(list(df_val[config["target"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    datetime_index=df_val.index[0::5],
+    ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1),
+    future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    future_ghi=torch.tensor(list(df_val["future_ghi"][0::5]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+    extra_features=val_extra_features
+  )
 
-train_dataloader = DataLoader(
-  dataset=train_data,
-  batch_size=config["batch_size"],
-  num_workers=config["num_workers"],
-  prefetch_factor=config["prefetch_factor"],
-  pin_memory=config["pin_memory"],
-  shuffle=config["shuffle_train"]
-)
+  train_dataloader = DataLoader(
+    dataset=train_data,
+    batch_size=config["batch_size"],
+    num_workers=config["num_workers"],
+    prefetch_factor=config["prefetch_factor"],
+    pin_memory=config["pin_memory"],
+    shuffle=config["shuffle_train"]
+  )
 
-test_dataloader = DataLoader(
-  dataset=test_data,
-  batch_size=config["batch_size"],
-  num_workers=config["num_workers"],
-  prefetch_factor=config["prefetch_factor"],
-  pin_memory=config["pin_memory"],
-  shuffle=False
-)
+  test_dataloader = DataLoader(
+    dataset=test_data,
+    batch_size=config["batch_size"],
+    num_workers=config["num_workers"],
+    prefetch_factor=config["prefetch_factor"],
+    pin_memory=config["pin_memory"],
+    shuffle=False
+  )
 
-val_dataloader = DataLoader(
-  dataset=val_data,
-  batch_size=config["batch_size"],
-  num_workers=config["num_workers"],
-  prefetch_factor=config["prefetch_factor"],
-  pin_memory=config["pin_memory"],
-  shuffle=False
-)
+  val_dataloader = DataLoader(
+    dataset=val_data,
+    batch_size=config["batch_size"],
+    num_workers=config["num_workers"],
+    prefetch_factor=config["prefetch_factor"],
+    pin_memory=config["pin_memory"],
+    shuffle=False
+  )
 
-train_features, train_labels = next(iter(train_dataloader))
-print(f"Feature batch shape: {train_features.size()}")
-print(f"Labels batch shape: {train_labels.size()}")
+  train_features, train_labels = next(iter(train_dataloader))
+  print(f"Feature batch shape: {train_features.size()}")
+  print(f"Labels batch shape: {train_labels.size()}")
 
-return train_dataloader, test_dataloader, val_dataloader
+  return train_dataloader, test_dataloader, val_dataloader
 
 
 
