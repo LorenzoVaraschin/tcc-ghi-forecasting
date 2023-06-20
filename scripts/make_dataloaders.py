@@ -90,17 +90,17 @@ def make_dataloaders(
   df_val: pd.DataFrame,
   config: dict
 ):
-"""
-Transforms a pandas DataFrame into a PyTorch DataLoader.
-These DataFrames should have the desired column names as presentend in columns.txt in the DataFrames folder.
+  """
+  Transforms a pandas DataFrame into a PyTorch DataLoader.
+  These DataFrames should have the desired column names as presentend in columns.txt in the DataFrames folder.
 
-Args: 
-df_train: DataFrame used for training.
-df_test: DataFrame used for testing.
-df_val: DataFrame used for validation.
-config: Dictionary which contains all the hyperparameters used for training.
-shold have the same keys as presented in config.txt
-"""
+  Args: 
+  df_train: DataFrame used for training.
+  df_test: DataFrame used for testing.
+  df_val: DataFrame used for validation.
+  config: Dictionary which contains all the hyperparameters used for training.
+  shold have the same keys as presented in config.txt
+  """
 
 
   img_transform = transforms.Compose([
