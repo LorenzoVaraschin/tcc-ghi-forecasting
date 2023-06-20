@@ -100,6 +100,9 @@ def make_dataloaders(
   df_val: DataFrame used for validation.
   config: Dictionary which contains all the hyperparameters used for training.
   shold have the same keys as presented in config.txt
+
+  Returns:
+  Three PyTorch DataLoader objects, in order train_dataloader, test_dataloader and val_dataloader
   """
 
 
