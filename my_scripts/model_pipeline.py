@@ -29,7 +29,7 @@ def model_pipeline(project, hyperparameters, df_train, df_test, df_val):
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
 
     #Create the model
-    model = RegressionResNet18()
+    model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
 
     #Create the loss function
     assert hyperparameters["loss_fn"] in ["mse_loss"], "Invalid loss function"
