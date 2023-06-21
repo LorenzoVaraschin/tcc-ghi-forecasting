@@ -171,7 +171,7 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
 
     val_loss, val_rmse = test_epoch(
       model=model,
-      dataloade=val_dataloader,
+      dataloader=val_dataloader,
       loss_fn=loss_fn,
       target=target,
       device=device,
