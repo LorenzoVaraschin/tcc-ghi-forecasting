@@ -17,6 +17,9 @@ def model_pipeline(project, hyperparameters, df_train, df_test, df_val):
   Args:
   Project: Name of the project to be logged in wandb. 
   hyperparameters: Hyperparamaters of the model and config of the wandb log.
+  df_train: Train Pandas DataFrame that contains the data for the train set.
+  df_test: Test Pandas DataFrame that contains the data for the test set.
+  df_val: Validation Panadas DataFrame that contains the data for the validation set.
 
   Returns:
   Trained model.
