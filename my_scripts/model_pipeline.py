@@ -55,6 +55,7 @@ def model_pipeline(project, hyperparameters, df_train, df_test, df_val):
       model=model,
       train_dataloader=train_dataloader,
       val_dataloader=val_dataloader,
+      loss_fn=loss_fn,
       optimizer=optimizer,
       scheduler=scheduler,
       scheduler_name=hyperparameters["scheduler"],
