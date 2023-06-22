@@ -1,0 +1,9 @@
+Index(['path', 'time_stamps', 'future_ghi', 'current_ghi', 'current_dni',
+       'current_dhi', 'current_ghi_cs_ine', 'future_ghi_cs_ine',
+       'current_kt_ine', 'future_kt_ine', 'current_ghi_cs_solis',
+       'future_ghi_cs_solis', 'current_kt_solis', 'future_kt_solis',
+       'current_ghi_cs_haur', 'future_ghi_cs_haur', 'current_kt_haur',
+       'future_kt_haur', 'zenith', 'cos_zenith', 'sin_zenith', 'azimuth',
+       'cos_azimuth', 'sin_azimuth', 'elevation', 'year', 'month', 'day',
+       'insolacao'],
+      dtype='object')
