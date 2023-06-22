@@ -10,7 +10,7 @@ from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
 
-def model_pipeline(project, hyperparameters, df_train, df_test, df_val):
+def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val):
   """
   Creates the model and dataloaders and trains/tests the model. Log the results in wandb.
 
@@ -25,7 +25,7 @@ def model_pipeline(project, hyperparameters, df_train, df_test, df_val):
   Trained model.
   """
 
-  with wandb.init(project=project, config=hyperparameters):
+  with wandb.init(project=project, name=run_name, config=hyperparameters):
     config = wandb.config
 
     #Create the dataloaders
