@@ -137,7 +137,7 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
   else:
     return test_loss, test_rmse
 
-def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, log_wandb, num_extra_features=0):
+def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, num_extra_features=0):
   """
   Trains and validates the model for the number of epochs specified.
 
@@ -153,11 +153,9 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
   t_cls: Not necessary yet, will be used to compute ramp metric.
   target: The label of each input, such as future_ghi, future_kt_solis and so on...
   device: Device that will do the computations (e.g. "cuda" or "cpu").
-  log_wandb: Wheter or not to log the model results to wandb.
   num_extra_features: If the model takes the image plus some extra features as it's input, num_extra_features is how many extra features there are.
   """
-  if log_wandb:
-    wandb.watch(model, loss_fn, log="all", log_freq=100)
+  wandb.watch(model, loss_fn, log="all", log_freq=100)
   for epoch in range(epochs):
     train_loss, train_rmse = train_epoch(
       model=model,
@@ -181,8 +179,7 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
       t_cls=t_cls,
       num_extra_features=num_extra_features
     )
-    if log_wandb:
-      wandb.log({"train_rmse": train_rmse, "val_rmse": val_rmse, "lr": optimizer.param_groups[0]['lr']})
+    wandb.log({"train_rmse": train_rmse, "val_rmse": val_rmse, "lr": optimizer.param_groups[0]['lr']})
     print(f"Epoch: {epoch} | Train loss: {train_loss:.4f} | Train RMSE: {train_rmse:.4f} | Val loss: {val_loss:.4f} | Val RMSE: {val_rmse:.4f} | LR: {optimizer.param_groups[0]['lr']}")
     if "reduce_lr_on_plateau" in scheduler_name:
       scheduler.step(val_loss)
