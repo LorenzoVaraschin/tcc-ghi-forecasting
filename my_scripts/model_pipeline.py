@@ -70,7 +70,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     )
 
     #Test the model
-    test_loss, test_rmse, test_mae = test_epoch(
+    test_loss, test_rmse, test_mae, predictions_ghi, predictions_kt, pred_timestamps = test_epoch(
       model=model,
       dataloader=test_dataloader,
       loss_fn=loss_fn,

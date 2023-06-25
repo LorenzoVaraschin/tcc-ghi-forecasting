@@ -5,6 +5,7 @@ Contains the train_epoch and test_epoch functions
 import torch
 import numpy as np
 import wandb
+import pandas as pd 
 
 from tqdm import tqdm
 from sklearn.metrics import mean_squared_error as sklearn_mse
@@ -91,10 +92,12 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
   num_extra_features: If the model takes the image plus some extra features as it's input, num_extra_features is how many extra features there are.
 
   Returns:
-  test_loss, test_rmse and test_mae for the test dataset. val_loss, val_rmse for the val dataset. 
+  test_loss, test_rmse, test_mae, predictions_ghi, predictions_kt and pred_timestamps for the test dataset. val_loss, val_rmse for the val dataset. 
   """
   model.eval()
   test_loss, test_rmse, test_mae = 0, 0, 0
+  predictions_ghi, predictions_kt = torch.tensor([]), torch.tensor([])
+  pred_timestamps = pd.DatetimeIndex([])
   with torch.inference_mode():
     #X contains all the image data and aux contains all the scalar data, as it was when the PyTorch Dataset was created.
     for X, aux in dataloader:
@@ -123,17 +126,22 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
         test_loss += loss.item()
         if dataset == "test":
           test_mae += sklearn_mae(test_pred.squeeze(), y[:, 0]).item()
+          predictions_ghi = torch.cat((predictions_ghi, test_pred.squeeze().detach().to("cpu")), dim=0)
+          pred_timestamps = pred_timestamps.append(pd.to_datetime(time_stamps.tolist(), unit='s'))
       else:
         test_loss += sklearn_mse(future_ghi, test_pred.squeeze().detach().to("cpu") * future_ghi_cs).item()
         if dataset == "test":
           test_mae += sklearn_mae(future_ghi, test_pred.squeeze().detach().to("cpu") * future_ghi_cs).item()
+          predictions_ghi = torch.cat((predictions_ghi, test_pred.squeeze().detach().to("cpu") * future_ghi_cs), dim=0)
+          predictions_kt = torch.cat((predictions_kt, test_pred.squeeze().detach().to("cpu")), dim=0)
+          pred_timestamps = pred_timestamps.append(pd.to_datetime(time_stamps.tolist(), unit='s'))
 
   test_loss = test_loss / len(dataloader)
   test_rmse = np.sqrt(test_loss)
 
   if dataset == "test":
     test_mae = test_mae/len(dataloader)
-    return test_loss, test_rmse, test_mae
+    return test_loss, test_rmse, test_mae, predictions_ghi, predictions_kt, pred_timestamps
   else:
     return test_loss, test_rmse
 
