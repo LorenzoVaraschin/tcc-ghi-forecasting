@@ -125,7 +125,7 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
       if "ghi" in target:
         test_loss += loss.item()
         if dataset == "test":
-          test_mae += sklearn_mae(test_pred.squeeze(), y[:, 0]).item()
+          test_mae += sklearn_mae(y[:, 0].detach().to("cpu"), test_pred.squeeze().detach().to("cpu")).item()
           predictions_ghi = torch.cat((predictions_ghi, test_pred.squeeze().detach().to("cpu")), dim=0)
           pred_timestamps = pred_timestamps.append(pd.to_datetime(time_stamps.tolist(), unit='s'))
       else:
