@@ -5,7 +5,7 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18
+from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet101
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
@@ -32,7 +32,13 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
 
     #Create the model
-    model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"]).to(hyperparameters["device"])
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet50", "RegressionResNet101"], "Invalid model name"
+    if hyperparameters["model_name"] == "RegressionResNet18":
+      model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"]).to(hyperparameters["device"])
+    elif hyperparameters["model_name"] == "RegressionResNet50":
+      model = RegressionResNet50(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"]).to(hyperparameters["device"])
+    elif hyperparameters["model_name"] == "RegressionResNet101":
+      model = RegressionResNet101(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"]).to(hyperparameters["device"])
 
     #Create the loss function
     assert hyperparameters["loss_fn"] in ["mse_loss"], "Invalid loss function"
