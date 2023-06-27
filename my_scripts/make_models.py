@@ -93,26 +93,48 @@ class RegressionResNet18ExtraFeatures(nn.Module):
       if 'bn' in name:
         param.requires_grad = False
 
+    self.new_layers_1 = nn.Sequential(
+        nn.Linear(in_features=512,
+                  out_features=64),
+        nn.ReLU(),
+    )
+    self.new_layers_2 = nn.Sequential(
+        nn.Linear(in_features=num_extra_features,
+                  out_features=16),
+        nn.ReLU(),
+        nn.Linear(in_features=16,
+                  out_features=16),
+        nn.ReLU()
+    )
+    
     if dropout > 0:
-      self.new_layers = nn.Sequential(
-          nn.Linear(in_features=512+num_extra_features,
-                    out_features=64),
-          nn.ReLU(),
-          nn.Dropout(p=dropout),
-          nn.Linear(in_features=64,
-                    out_features=1)
-      )
+      self.new_layers_3 = nn.Sequential(
+        nn.Linear(in_features=80,
+                  out_features=64),
+        nn.ReLU(),
+        nn.Linear(in_features=64,
+                  out_features=32),
+        nn.ReLU(),
+        nn.Dropout(p=dropout),
+        nn.Linear(in_features=32,
+                  out_features=1)
+    )
     else:
-      self.new_layers = nn.Sequential(
-          nn.Linear(in_features=512+num_extra_features,
-                    out_features=64),
-          nn.ReLU(),
-          nn.Linear(in_features=64,
-                    out_features=1)
-      )
+      self.new_layers_3 = nn.Sequential(
+        nn.Linear(in_features=80,
+                  out_features=64),
+        nn.ReLU(),
+        nn.Linear(in_features=64,
+                  out_features=32),
+        nn.ReLU(),
+        nn.Linear(in_features=32,
+                  out_features=1)
+    )
 
   def forward(self, x, extra_features):
     x = self.resnet(x)
+    x = self.new_layers_1(x)
+    extra_features = self.new_layers_2(extra_features)
     x = torch.cat((x, extra_features), dim=1)
-    x = self.new_layers(x)
+    x = self.new_layers_3(x)
     return x
