@@ -92,7 +92,11 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
 
     # Save the model in the exchangeable ONNX format
     train_features, train_labels = next(iter(train_dataloader))
-    torch.onnx.export(model, train_features.to(hyperparameters["device"]), "model.onnx")
+    if hyperparameters["num_extra_features"] > 0:
+      args = (train_features.to(hyperparameters["device"]), train_labels[:, 5:].float().to(hyperparameters["device"]))
+    else:
+      args = (train_features.to(hyperparameters["device"]))
+    torch.onnx.export(model, args, "model.onnx")
     wandb.save("model.onnx")
 
     return model
