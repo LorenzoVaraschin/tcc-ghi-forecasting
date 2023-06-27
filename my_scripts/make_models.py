@@ -2,6 +2,8 @@
 Pytorch code to make all the models used in this project
 Available models are:
 -RegressionResNet18 - Base ResNet18 modified to fit a regression task.
+-RegresionResNet50 - Base ResNet50 modified to fit a regression task.
+-RegressionResNet18ExtraFeatures - ResNet18 modified to accept extra input features.
 """
 import torch
 import torchvision
@@ -14,10 +16,13 @@ class RegressionResNet18(nn.Module):
   Args:
   weights: Initialize the weights of the model to be trained (torchvision.models.ResNet18_Weights.DEFAULT is recommended).
   dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
   """
-  def __init__(self, weights, dropout):
+  def __init__(self, weights, dropout, stacked=False):
     super().__init__()
     self.resnet = torchvision.models.resnet18(weights=weights)
+    if stacked:
+      self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
     for name, param in self.resnet.named_parameters():
       if 'bn' in name:
         param.requires_grad = False
@@ -43,10 +48,13 @@ class RegressionResNet50(nn.Module):
   Args:
   weights: Initialize the weights of the model to be trained (torchvision.models.ResNet50_Weights.DEFAULT is recommended).
   dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
   """
-  def __init__(self, weights, dropout):
+  def __init__(self, weights, dropout, stacked=False):
     super().__init__()
     self.resnet = torchvision.models.resnet50(weights=weights)
+    if stacked:
+      self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
     for name, param in self.resnet.named_parameters():
       if 'bn' in name:
         param.requires_grad = False
@@ -65,31 +73,46 @@ class RegressionResNet50(nn.Module):
     x = self.resnet(x)
     return x
 
-class RegressionResNet101(nn.Module):
+class RegressionResNet18ExtraFeatures(nn.Module):
   """
-  Base ResNet101 modified to fit a regression task. Expects an image as input, and will output a real number prediction.
-  
+  ResNet18 modified to fit regresion task and to accomodate extra features in training. Expects an image and at least one extra feature as input.
+
   Args:
-  weights: Initialize the weights of the model to be trained (torchvision.models.ResNet101_Weights.DEFAULT is recommended).
+  num_extra_features: How many extra features will be used in training.
+  weights: Initialize the weights of the model to be trained (torchvision.models.ResNet18_Weights.DEFAULT is recommended).
   dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
   """
-  def __init__(self, weights, dropout):
+  def __init__(self, num_extra_features, dropout, weights, stacked=False):
     super().__init__()
-    self.resnet = torchvision.models.resnet101(weights=weights)
+    self.resnet = torchvision.models.resnet18(weights=weights)
+    if stacked:
+      self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    self.resnet.fc = nn.Flatten()
     for name, param in self.resnet.named_parameters():
       if 'bn' in name:
         param.requires_grad = False
-        
-      if dropout > 0:
-        self.resnet.fc = nn.Sequential(
+
+    if dropout > 0:
+      self.new_layers = nn.Sequential(
+          nn.Linear(in_features=512+num_extra_features,
+                    out_features=64),
+          nn.ReLU(),
           nn.Dropout(p=dropout),
-          nn.Linear(in_features=2048,
+          nn.Linear(in_features=64,
                     out_features=1)
-        )
-      else:
-        self.resnet.fc = nn.Linear(in_features=2048,
-                                   out_features=1)
-        
-  def forward(self, x):
+      )
+    else:
+      self.new_layers = nn.Sequential(
+          nn.Linear(in_features=512+num_extra_features,
+                    out_features=64),
+          nn.ReLU(),
+          nn.Linear(in_features=64,
+                    out_features=1)
+      )
+
+  def forward(self, x, extra_features):
     x = self.resnet(x)
-    return x     
+    x = torch.cat((x, extra_features), dim=1)
+    x = self.new_layers(x)
+    return x

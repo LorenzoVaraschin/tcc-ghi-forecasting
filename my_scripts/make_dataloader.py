@@ -72,11 +72,24 @@ class ImageAndExtraFeaturesDataset(Dataset):
     future_ghi_cs = self.future_ghi_cs[index]
     future_ghi = self.future_ghi[index]
     time_stamp = torch.tensor(np.array([time_stamp.timestamp()]))
-    img = read_image(image_path)
-    #Crop image  
-    img = img[:, 20:245, 10:235]
-    #Other transforms
-    img = self.transform(img)
+    #When using stacked images to train model - 9 channels
+    if len(image_path) == 3:
+      img_0 = read_image(image_path[0])
+      img_0 = img_0[:, 20:245, 10:235] #Crop image 
+      img_0 = self.transform(img_0) #Other transforms
+
+      img_1 = read_image(image_path[1])
+      img_1 = img_1[:, 20:245, 10:235]
+      img_1 = self.transform(img_1)
+
+      img_2 = read_image(image_path[2])
+      img_2 = img_2[:, 20:245, 10:235]
+      img_2 = self.transform(img_2)
+      img = torch.cat((img_0, img_1, img_2), dim=0)
+    else: #Single images
+      img = read_image(image_path)
+      img = img[:, 20:245, 10:235]
+      img = self.transform(img)
     ghi = self.label[index]
     if self.extra_features != None:
       extra_features = self.extra_features[index]
@@ -130,7 +143,7 @@ def make_dataloaders(
     val_extra_features = None
 
   train_data = ImageAndExtraFeaturesDataset(
-    paths=df_train["path"][0::config["sample_rate"]],
+    paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
     transform=img_transform,
     label=torch.tensor(list(df_train[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_train.index[0::config["sample_rate"]],
@@ -141,7 +154,7 @@ def make_dataloaders(
   )
 
   test_data = ImageAndExtraFeaturesDataset(
-    paths=df_test["path"][0::config["sample_rate"]],
+    paths=df_test["path"][0::config["sample_rate"]] if not config["stacked"] else df_test[["path_t-2x", "path_t-x", "path_t"]],
     transform=img_transform,
     label=torch.tensor(list(df_test[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_test.index[0::config["sample_rate"]],
@@ -152,7 +165,7 @@ def make_dataloaders(
   )
 
   val_data = ImageAndExtraFeaturesDataset(
-    paths=df_val["path"][0::config["sample_rate"]],
+    paths=df_val["path"][0::config["sample_rate"]] if not config["stacked"] else df_val[["path_t-2x", "path_t-x", "path_t"]],
     transform=img_transform,
     label=torch.tensor(list(df_val[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_val.index[0::config["sample_rate"]],
@@ -194,9 +207,3 @@ def make_dataloaders(
   print(f"Labels batch shape: {train_labels.size()}")
 
   return train_dataloader, test_dataloader, val_dataloader
-
-
-
-
-
-
