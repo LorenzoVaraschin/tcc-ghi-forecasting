@@ -105,4 +105,4 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     torch.onnx.export(model, args, "model.onnx")
     wandb.save("model.onnx")
 
-    return model
+    return model, predictions_ghi, predictions_kt, pred_timestamps
