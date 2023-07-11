@@ -138,3 +138,58 @@ class RegressionResNet18ExtraFeatures(nn.Module):
     x = torch.cat((x, extra_features), dim=1)
     x = self.new_layers_3(x)
     return x
+
+
+
+class SunsetModel(nn.Module):
+  """
+  Sunset model from `SKIPP’D: A SKy Images and Photovoltaic Power Generation Dataset for short-term solar forecasting` <https://doi.org/10.1016/j.solener.2023.03.043>
+
+  Args:
+  dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training.
+  """
+  def __init__(self, dropout):
+
+    super().__init__()
+
+    self.conv_layer1 = nn.Sequential(
+        nn.Conv2d(in_channels=3,
+                  out_channels=24,
+                  kernel_size=3,
+                  padding="same"),
+        nn.ReLU(),
+        nn.BatchNorm2d(num_features=24),
+        nn.MaxPool2d(kernel_size=2,
+                     stride=2)
+    )
+
+    self.conv_layer2 = nn.Sequential(
+        nn.Conv2d(in_channels=24,
+                  out_channels=48,
+                  kernel_size=3,
+                  padding="same"),
+        nn.ReLU(),
+        nn.BatchNorm2d(num_features=48),
+        nn.MaxPool2d(kernel_size=2,
+                     stride=2)
+    )
+
+    self.dense_layer = nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(in_features=48*16*16,
+                  out_features=1024),
+        nn.ReLU(),
+        nn.Dropout(p=dropout),
+        nn.Linear(in_features=1024,
+                  out_features=1024),
+        nn.ReLU(),
+        nn.Dropout(p=dropout),
+        nn.Linear(in_features=1024,
+                  out_features=1)
+    )
+
+  def forward(self, x):
+    x = self.conv_layer1(x)
+    x = self.conv_layer2(x)
+    x = self.dense_layer(x)
+    return x
