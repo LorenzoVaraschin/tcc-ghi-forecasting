@@ -5,9 +5,10 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet18ExtraFeatures
+from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
+from torchinfo import summary
 
 
 def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val):
@@ -40,7 +41,11 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     elif hyperparameters["model_name"] == "RegressionResNet18ExtraFeatures":
       model = RegressionResNet18ExtraFeatures(num_extra_features=hyperparameters["num_extra_features"], weights=hyperparameters["weights"],
                                               dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
+    elif hyperparameters["model_name"] == "SunsetModel":
+      model = SunsetModel(dropout=hyperparameters["dropout"])
 
+    summary(model=model, input_size=hyperparameters["input_shape"], col_names=["input_size", "output_size", "num_params", "trainable"], col_width=20, row_settings=["var_names"])
+    
     #Create the loss function
     assert hyperparameters["loss_fn"] in ["mse_loss"], "Invalid loss function"
     if hyperparameters["loss_fn"] == "mse_loss":
