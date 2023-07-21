@@ -48,9 +48,13 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     print(model_sum)
     
     #Create the loss function
-    assert hyperparameters["loss_fn"] in ["mse_loss"], "Invalid loss function"
+    assert hyperparameters["loss_fn"] in ["mse_loss", "mae_loss", "huber_loss"], "Invalid loss function"
     if hyperparameters["loss_fn"] == "mse_loss":
       loss_fn = torch.nn.MSELoss()
+    elif hyperparameters["loss_fn"] == "mae_loss":
+      loss_fn = torch.nn.L1Loss()
+    elif hyperparameters["loss_fn"] == "huber_loss":
+      loss_fn = torch.nn.HuberLoss(delta=hyperparameters["huber_delta"])
 
     assert hyperparameters["optimizer"] in ["adam"], "Invalid optimizer"
     if hyperparameters["optimizer"] == "adam":
