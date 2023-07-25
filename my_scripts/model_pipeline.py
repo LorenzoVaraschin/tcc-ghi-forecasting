@@ -33,7 +33,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
 
     #Create the model
-    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel"], "Invalid model name"
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RegressionResNet50":
@@ -43,6 +43,8 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
                                               dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "SunsetModel":
       model = SunsetModel(dropout=hyperparameters["dropout"])
+    elif hyperparameters["model_name"] == "RegressionVGG16":
+      model = SunsetModel(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
 
     model_sum = summary(model=model, input_size=hyperparameters["input_shape"], col_names=["input_size", "output_size", "num_params", "trainable"], col_width=20, row_settings=["var_names"])
     print(model_sum)
