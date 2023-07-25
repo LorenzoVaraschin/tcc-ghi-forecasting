@@ -119,7 +119,7 @@ def make_dataloaders(
   """
 
   if config["rotate_image"] == True:
-    train_img_transform = transforms.Compose([
+    img_transform = transforms.Compose([
         transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
         transforms.RandomRotation((config["min_angle"], config["max_angle"])), #Rotate image
         transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
@@ -127,14 +127,7 @@ def make_dataloaders(
                             std=[0.229, 0.224, 0.225])
     ])
   else:
-    train_img_transform = transforms.Compose([
-        transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
-        transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
-                            std=[0.229, 0.224, 0.225])
-    ])
-
-  val_test_img_transform = transforms.Compose([
+    img_transform = transforms.Compose([
         transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
         transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
         transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
@@ -158,7 +151,7 @@ def make_dataloaders(
 
   train_data = ImageAndExtraFeaturesDataset(
     paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
-    transform=train_img_transform,
+    transform=img_transform,
     label=torch.tensor(list(df_train[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_train.index[0::config["sample_rate"]],
     ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
@@ -169,7 +162,7 @@ def make_dataloaders(
 
   test_data = ImageAndExtraFeaturesDataset(
     paths=df_test["path"][0::config["sample_rate"]] if not config["stacked"] else df_test[["path_t-2x", "path_t-x", "path_t"]],
-    transform=val_test_img_transform,
+    transform=img_transform,
     label=torch.tensor(list(df_test[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_test.index[0::config["sample_rate"]],
     ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
@@ -180,7 +173,7 @@ def make_dataloaders(
 
   val_data = ImageAndExtraFeaturesDataset(
     paths=df_val["path"][0::config["sample_rate"]] if not config["stacked"] else df_val[["path_t-2x", "path_t-x", "path_t"]],
-    transform=val_test_img_transform,
+    transform=img_transform,
     label=torch.tensor(list(df_val[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
     datetime_index=df_val.index[0::config["sample_rate"]],
     ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
