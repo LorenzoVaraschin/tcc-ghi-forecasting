@@ -44,7 +44,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     elif hyperparameters["model_name"] == "SunsetModel":
       model = SunsetModel(dropout=hyperparameters["dropout"])
     elif hyperparameters["model_name"] == "RegressionVGG16":
-      model = SunsetModel(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
+      model = RegressionVGG16(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
 
     model_sum = summary(model=model, input_size=hyperparameters["input_shape"], col_names=["input_size", "output_size", "num_params", "trainable"], col_width=20, row_settings=["var_names"])
     print(model_sum)
