@@ -139,7 +139,32 @@ class RegressionResNet18ExtraFeatures(nn.Module):
     x = self.new_layers_3(x)
     return x
 
+class RegressionVGG16(nn.Module):
+  """
+  Base VGG16 modified to fit a regression task. Expects an image as input, and will output a real number prediction.
+  
+  Args:
+  weights: Initialize the weights of the model to be trained (torchvision.models.VGG16_Weights.DEFAULT is recommended).
+  dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
+  """
+  def __init__(self, weights, dropout, stacked=False):
+    super().__init__()
+    self.vgg = torchvision.models.vgg16(weights=weights)
 
+    if dropout > 0:
+      self.vgg.classifier = nn.Sequential(
+        nn.Dropout(p=dropout),
+        nn.Linear(in_features=25088,
+                  out_features=1)
+      )
+    else:
+      self.vgg.classifier = nn.Linear(in_features=25088,
+                                  out_features=1)
+        
+  def forward(self, x):
+    x = self.vgg(x)
+    return x
 
 class SunsetModel(nn.Module):
   """
