@@ -5,7 +5,7 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel
+from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torchinfo import summary
