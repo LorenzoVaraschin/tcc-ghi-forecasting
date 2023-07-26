@@ -123,15 +123,15 @@ def make_dataloaders(
         transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
         transforms.RandomRotation((config["min_angle"], config["max_angle"])), #Rotate image
         transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
-                            std=[0.229, 0.224, 0.225])
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
+        #                    std=[0.229, 0.224, 0.225])
     ])
   else:
     img_transform = transforms.Compose([
         transforms.Resize((config["img_size"], config["img_size"]), antialias=True), #Resize image
         transforms.ConvertImageDtype(dtype=torch.float32), #read_image() read each pixel into uint8, but all tensors must be in dtype=torch.float32
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
-                            std=[0.229, 0.224, 0.225])
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], #ResNet normalization
+        #                    std=[0.229, 0.224, 0.225])
     ])
   
   if len(config["extra_features"]) > 0:  
