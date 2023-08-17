@@ -14,3 +14,7 @@ The aim of this project is to train deep learning models to nowcast and forecast
 By achieving both of these goals, solar photovoltaic energy will become much more predictable (perhaps even dispatchable if the predictions are extremely accurate) and it's large-scale integration into the electric grid will become much safer, therefore allowing it's greater penetration into the system. With this, the ever-increasing demand will be supplied by solar photovoltaic energy, and society will be able to develop in a sustainable way.
 
 ## Dataset
+As mentioned in the previous section, the dataset used in this project is the Folsom, California dataset, created by [Pedro et al.][cc-by]
+
+[cc-by]:  https://doi.org/10.1063/1.5094494
+
