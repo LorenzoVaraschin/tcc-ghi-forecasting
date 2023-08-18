@@ -33,3 +33,11 @@ The name of each image files sugests the exact time where the image was taken, s
 It can be seen that, for the image file `20161012_224059.jpg`, there seems to be a 11 minute and 31 second difference between the image file name and it's date modified metadata. This inconsistency seems to be even more transparent when the images are overlapped with their corresponding GHI measurements. When using the file name to label the images, the GHI is high in some instances where the sun is covered but low on others where the sun is exposed. A comparison between the two is shown below.
 
 ![date modified gif](/repo_images/date_modif.gif)
+<p align=center>
+Figure 1: Images with date modified timestamps and corresponding GHI measurement
+</p>
+
+![img file gif](/repo_images/img_file.gif)
+<p align=center>
+Figure 2: Images with image file name timestamps and corresponding GHI measurement
+</p>
