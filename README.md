@@ -40,7 +40,7 @@ Figure 1: Images with date modified timestamps and image file timestamps and the
 When using the image file name timestamp to label each image, the GHI measurements are approximately 11 minutes ahead of the image, which explains why, in this highly variable day, the GHI is high when it's corresponding image has the sun blocked by clouds but low when it's corresponding image has the sun completly exposed. When using the image date modified metadata as the timestamp, this phenomenon does not occur and the correlation between the images and the GHI measurements is much more apparent. 
 
 ## Nowcasting Model (work in progress...)
-The best performing nowcasting model so far was the RegressionResNet18 (see my_scripts/make_models.py). It achieved an RMSE of 41.59 W/m2 and MAE of 25.57 W/m2 on the test set.
+The best performing nowcasting model so far was the RegressionResNet18 (see my_scripts/make_models.py). It achieved a RMSE of 41.59 W/m2 and MAE of 25.57 W/m2 on the test set.
 
 ## Forecasting Model (work in progress...)
-The best performing forecasting model so far was the RegressionsResNet18 (see my_scripts/make_models.py). It achieved an RMSE of 67.14 W/m2 (+9% over persistence model) and MAE of 34.37 W/m2 on the test set.
+The best performing forecasting model so far was the RegressionsResNet18 (see my_scripts/make_models.py). It achieved a RMSE of 67.14 W/m2 (+9% over persistence model) and MAE of 34.37 W/m2 on the test set.
