@@ -29,3 +29,6 @@ As mentioned in the previous section, the dataset used in this project is the Fo
 The name of each image files sugests the exact time where the image was taken, so the image file `20161012_224059.jpg` is supposed to have been taken on `2016/10/12` at `22:40:59` (in UTC timezone). However, through some exploratory data analysis (EDA), the image files seem to be incorrectly named. This is verified by checking the date modified metadata of each image file and recognizing that they are indeed different, as can be seen in the example below.
 
 <div align=center><image src="./repo_images/date_modified.png"></div>
+
+It can be seen that, for the image file `20161012_224059.jpg`, there seems to be a 11 minute and 31 second difference between the image file name and it's date modified metadata. This inconsistency seems to be even more transparent when the images are overlapped with their corresponding GHI measurements. When using the file name to label the images, the GHI is high in some instances where the sun is covered but low on others where the sun is exposed. A comparison between the two is shown below.
+
