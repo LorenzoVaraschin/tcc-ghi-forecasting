@@ -41,3 +41,9 @@ Figure 1: Images with date modified timestamps and corresponding GHI measurement
 <p align=center>
 Figure 2: Images with image file name timestamps and corresponding GHI measurement
 </p>
+
+## Nowcasting Model (work in progress...)
+The best performing nowcasting model so far was the RegressionResNet18 (see my_scripts/make_models.py). It achieved an RMSE of 41.59 W/m2 and MAE of 25.57 W/m2 on the test set.
+
+## Forecasting Model (work in progress...)
+The best performing forecasting model so far was the RegressionsResNet18 (see my_scripts/make_models.py). It achieved an RMSE of 67.14 W/m2 (+9% over persistence model) and MAE of 34.37 W/m2 on the test set.
