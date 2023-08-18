@@ -27,4 +27,5 @@ As mentioned in the previous section, the dataset used in this project is the Fo
 
 ## Dataset inconsistencies
 The name of each image files sugests the exact time where the image was taken, so the image file `20161012_224059.jpg` is supposed to have been taken on `2016/10/12` at `22:40:59` (in UTC timezone). However, through some exploratory data analysis (EDA), the image files seem to be incorrectly named. This is verified by checking the date modified metadata of each image file and recognizing that they are indeed different, as can be seen in the example below.
+
 <div align=center><image src="./repo_images/date_modified.png"></div>
