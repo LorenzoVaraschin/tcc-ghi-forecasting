@@ -14,7 +14,16 @@ The aim of this project is to train deep learning models to nowcast and forecast
 By achieving both of these goals, solar photovoltaic energy will become much more predictable (perhaps even dispatchable if the predictions are extremely accurate) and it's large-scale integration into the electric grid will become much safer, therefore allowing it's greater penetration into the system. With this, the ever-increasing demand will be supplied by solar photovoltaic energy, and society will be able to develop in a sustainable way.
 
 ## Dataset
-As mentioned in the previous section, the dataset used in this project is the Folsom, California dataset, created by [Pedro et al.][cc-by]
+As mentioned in the previous section, the dataset used in this project is the Folsom dataset, created by [Pedro et al.][cc-by]. This dataset provides three years (2014-2016) of 1-min resolution GHI measurements, as well as overlapping exogenous data such as: sky images; satellite images; Numerical Weather Prediction; weather data. Currently, the only exogenous data being used are the sky images. These sky images are in the Red-Green-Blue (RGB) color format and have a 1536x1536 pixel resolution. This resolution is downscaled to 64x64 in a preprocessing pipeline to save training time and memory consumption. The utilized data is summarized in the table below:
+
+| File | Description |
+| ------------- | ------------- |
+| Folsom_irradiance.csv | 1-min resolution GHI, DNI and DHI data for the year 2014, 2015 and 2016. | 
+| Folsom_sky_images_2014.tar.bz2 | Compressed 2014 sky images. After extraction each month will be a directory, and each day will be a sub-directory. The image files will be named acccording to the following format 2014MMDD_HHMMSS.jpg
+| Folsom_sky_images_2015.tar.bz2 | Compressed 2015 sky images. After extraction each month will be a directory, and each day will be a sub-directory. The image files will be named acccording to the following format 2015MMDD_HHMMSS.jpg
+| Folsom_sky_images_2016.tar.bz2 | Compressed 2016 sky images. After extraction each month will be a directory, and each day will be a sub-directory. The image files will be named acccording to the following format 2016MMDD_HHMMSS.jpg
+
+
 
 [cc-by]:  https://doi.org/10.1063/1.5094494
 
