@@ -145,7 +145,7 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
   else:
     return test_loss, test_rmse
 
-def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, num_extra_features=0):
+def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, VAL_LOSS, MODEL_CHECKPOINT=False, num_extra_features=0):
   """
   Trains and validates the model for the number of epochs specified.
 
@@ -161,10 +161,20 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
   t_cls: Not necessary yet, will be used to compute ramp metric.
   target: The label of each input, such as future_ghi, future_kt_solis and so on...
   device: Device that will do the computations (e.g. "cuda" or "cpu").
+  VAL_LOSS: Validation loss to check for model checkpoint. Default=0 (won't save model checkpoint).
+  MODEL_CHECKPOINT: Whether or not model's checkpoint will be saved
   num_extra_features: If the model takes the image plus some extra features as it's input, num_extra_features is how many extra features there are.
   """
   wandb.watch(model, loss_fn, log="all", log_freq=100)
+  PATH = "/content/model_checkpoint.pt" #Path to sabe model checkpoint
   for epoch in range(epochs):
+    if (epoch > 0) & (MODEL_CHECKPOINT == True):
+      #Load the saved checkopoint
+      checkpoint = torch.load(PATH)
+      model.load_state_dict(checkpoint['model_state_dict'])
+      optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+      VAL_LOSS = checkpoint['val_loss']
+
     train_loss, train_rmse = train_epoch(
       model=model,
       dataloader=train_dataloader,
@@ -193,3 +203,13 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
       scheduler.step(val_loss)
     else:
       scheduler.step()
+
+    if val_loss < VAL_LOSS:
+      #Save the new checkpoint
+      torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'train_loss': train_loss,
+            'val_loss': val_loss
+            }, PATH)

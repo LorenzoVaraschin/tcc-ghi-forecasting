@@ -72,6 +72,13 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     elif hyperparameters["scheduler"] == "reduce_lr_on_plateau":
       scheduler = ReduceLROnPlateau(optimizer, 'min', factor=hyperparameters["scheduler_factor"], patience=hyperparameters["scheduler_patience"])
 
+    #Create the model checkpoint
+    if hyperparameters["model_checkpoint"] == True:
+      VAL_LOSS = 1e10
+      print("\nModel checkpoint is on, epoch with best validation loss will be saved to disk on /content/model_checkpoint.pt\n")
+    else :
+      VAL_LOSS = 0 #Will never update model's checkpoint
+      
     #Train the model
     train_model(
       model=model,
@@ -85,7 +92,9 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
       t_cls=hyperparameters["t_cls"],
       target=hyperparameters["target"],
       device=hyperparameters["device"],
-      num_extra_features=hyperparameters["num_extra_features"]
+      VAL_LOSS=VAL_LOSS,
+      MODEL_CHECKPOINT=hyperparameters["model_checkpoint"],
+      num_extra_features=hyperparameters["num_extra_features"]   
     )
 
     #Test the model
