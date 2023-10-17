@@ -65,7 +65,7 @@ class RegressionResNet18EmbedTransform(nn.Module):
         self.resnet.fc = nn.Sequential(
           nn.Dropout(p=dropout),
           nn.Linear(in_features=512,
-                    out_features=hidden_units)
+                    out_features=hidden_units),
           nn.ReLU(),
           nn.Linear(in_features=hidden_units,
                     out_features=1)
@@ -73,7 +73,7 @@ class RegressionResNet18EmbedTransform(nn.Module):
       else:
         self.resnet.fc = nn.Sequential(
           nn.Linear(in_features=512,
-                    out_features=hidden_units)
+                    out_features=hidden_units),
           nn.ReLU(),
           nn.Linear(in_features=hidden_units,
                     out_features=1)
