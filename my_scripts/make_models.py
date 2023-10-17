@@ -41,6 +41,47 @@ class RegressionResNet18(nn.Module):
     x = self.resnet(x)
     return x
 
+
+class RegressionResNet18EmbedTransform(nn.Module):
+  """
+  Base ResNet18 modified to fit a regression task and to change 512 dimension embedding. Expects an image as input, and will output a real number prediction.
+  
+  Args:
+  weights: Initialize the weights of the model to be trained (torchvision.models.ResNet18_Weights.DEFAULT is recommended).
+  dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  hidden_units: Number of hidden units to change the embedding size to.
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
+  """
+  def __init__(self, weights, dropout, hidden_units, stacked=False):
+    super().__init__()
+    self.resnet = torchvision.models.resnet18(weights=weights)
+    if stacked:
+      self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    for name, param in self.resnet.named_parameters():
+      if 'bn' in name:
+        param.requires_grad = False
+        
+      if dropout > 0:
+        self.resnet.fc = nn.Sequential(
+          nn.Dropout(p=dropout),
+          nn.Linear(in_features=512,
+                    out_features=hidden_units)
+          nn.ReLU(),
+          nn.Linear(in_features=hidden_units,
+                    out_features=1)
+        )
+      else:
+        self.resnet.fc = nn.Sequential(
+          nn.Linear(in_features=512,
+                    out_features=hidden_units)
+          nn.ReLU(),
+          nn.Linear(in_features=hidden_units,
+                    out_features=1)
+        )
+  def forward(self, x):
+    x = self.resnet(x)
+    return x    
+
 class RegressionResNet50(nn.Module):
   """
   Base ResNet50 modified to fit a regression task. Expects an image as input, and will output a real number prediction.

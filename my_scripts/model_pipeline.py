@@ -5,7 +5,7 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
+from make_models import RegressionResNet18, RegressionResNet18EmbedTransform, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torchinfo import summary
@@ -33,9 +33,11 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
 
     #Create the model
-    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
+    elif hyperparameters["model_name"] == "RegressionResNet18EmbedTransform":
+      model = RegressionResNet18EmbedTransform(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], hidden_units=hyperparameters["hidden_units"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])  
     elif hyperparameters["model_name"] == "RegressionResNet50":
       model = RegressionResNet50(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RegressionResNet18ExtraFeatures":
