@@ -52,13 +52,18 @@ class RegressionResNet18EmbedTransform(nn.Module):
   hidden_units: Number of hidden units to change the embedding size to.
   stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
   """
-  def __init__(self, weights, dropout, hidden_units, stacked=False):
+  def __init__(self, weights, dropout, hidden_units, fine_tuning, stacked=False):
     super().__init__()
     self.resnet = torchvision.models.resnet18(weights=weights)
     if stacked:
       self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
+
+    frozen_layers = 0
     for name, param in self.resnet.named_parameters():
-      if 'bn' in name:
+      if frozen_layers < fine_tuning:
+        param.requires_grad = False
+        frozen_layers += 1
+      elif 'bn' in name:
         param.requires_grad = False
         
       if dropout > 0:
