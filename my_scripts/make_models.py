@@ -63,13 +63,15 @@ class RegressionResNet18EmbedTransform(nn.Module):
         
       if dropout > 0:
         self.resnet.fc = nn.Sequential(
-          nn.Dropout(p=dropout),
           nn.Linear(in_features=512,
                     out_features=hidden_units),
           nn.ReLU()
         )
-        self.linear = nn.Linear(in_features=hidden_units,
-                                    out_features=1)
+        self.linear = nn.Sequential(
+          nn.Dropout(p=dropout),
+          nn.Linear(in_features=hidden_units,
+                    out_features=1)
+        )
       else:
         self.resnet.fc = nn.Sequential(
           nn.Linear(in_features=512,
