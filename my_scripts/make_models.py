@@ -83,11 +83,11 @@ class RegressionResNet18EmbedTransform(nn.Module):
                     out_features=hidden_units),
           nn.ReLU()
         )
-        #self.linear = nn.Linear(in_features=hidden_units,
-        #                            out_features=1)
+        self.linear = nn.Linear(in_features=hidden_units,
+                                    out_features=1)
   def forward(self, x):
     x = self.resnet(x)
-    #x = self.linear(x)
+    x = self.linear(x)
     return x    
 
 class RegressionResNet50(nn.Module):
