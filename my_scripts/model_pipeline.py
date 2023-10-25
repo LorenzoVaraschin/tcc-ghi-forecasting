@@ -35,7 +35,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     #Create the model
     assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
-      model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])
+      model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"], sun_mask=hyperparameters["sun_mask"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RegressionResNet18EmbedTransform":
       model = RegressionResNet18EmbedTransform(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], hidden_units=hyperparameters["hidden_units"], fine_tuning=hyperparameters["fine_tuning"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])  
     elif hyperparameters["model_name"] == "RegressionResNet50":

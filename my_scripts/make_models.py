@@ -18,11 +18,13 @@ class RegressionResNet18(nn.Module):
   dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
   stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
   """
-  def __init__(self, weights, dropout, stacked=False):
+  def __init__(self, weights, dropout, stacked=False, sun_mask=False):
     super().__init__()
     self.resnet = torchvision.models.resnet18(weights=weights)
     if stacked:
       self.resnet.conv1 = torch.nn.Conv2d(9, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    if sun_mask:
+      self.resnet.conv1 = torch.nn.Conv2d(4, 64, kernel_size=7, stride=2, padding=3, bias=False)
     for name, param in self.resnet.named_parameters():
       if 'bn' in name:
         param.requires_grad = False
@@ -40,7 +42,6 @@ class RegressionResNet18(nn.Module):
   def forward(self, x):
     x = self.resnet(x)
     return x
-
 
 class RegressionResNet18EmbedTransform(nn.Module):
   """
