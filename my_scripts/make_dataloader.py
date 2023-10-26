@@ -162,6 +162,10 @@ def make_dataloaders(
     train_sun_center_list = list(df_train["sun_center"][0::config["sample_rate"]])
     test_sun_center_list = list(df_test["sun_center"][0::config["sample_rate"]])
     val_sun_center_list = list(df_val["sun_center"][0::config["sample_rate"]])
+  else:
+    train_sun_center_list = None
+    test_sun_center_list = None
+    val_sun_center_list = None
 
   train_data = ImageAndExtraFeaturesDataset(
     paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
