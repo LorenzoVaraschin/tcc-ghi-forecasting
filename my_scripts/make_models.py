@@ -43,6 +43,52 @@ class RegressionResNet18(nn.Module):
     x = self.resnet(x)
     return x
 
+
+class RecursiveResNet18AndLSTM(nn.Module):
+  """
+  Base ResNet18 modified to fit a regression task. Expects an image as input, and will output a real number prediction.
+  
+  Args:
+  weights: Initialize the weights of the model to be trained (torchvision.models.ResNet18_Weights.DEFAULT is recommended).
+  dropout: Dropout hyperparameter indicating the probability of a unit to be shutdown during training (avoids overfitting).
+  stacked: Wether or not the input images are stacked images (a stacked image is an input composed of 3 stacked images, resulting in a input with 9 channels).
+  """
+  def __init__(self, weights, dropout, hidden_dim, lstm_layers, device):
+    super().__init__()
+    self.device = device
+    self.hidden_dim = hidden_dim
+    self.resnet = torchvision.models.resnet18(weights=weights)
+    for name, param in self.resnet.named_parameters():
+      if 'bn' in name:
+        param.requires_grad = False
+
+    self.resnet = nn.Sequential(*list(self.resnet.children())[:-1])
+    
+    self.lstm = nn.LSTM(
+        input_size=512,
+        hidden_size=hidden_dim,
+        batch_first=False,
+        dropout=dropout,
+        num_layers=lstm_layers
+    )
+
+    self.predictor = nn.Linear(
+        in_features=hidden_dim,
+        out_features=1
+    )
+
+  def forward(self, x):
+    #x has shape (batch_size, seq_size, n_channels, image_height, image_width)
+    resnet_embeddings_seq = torch.tensor([])
+    for image_batch in x.view(x.size()[1], x.size()[0], x.size()[2], x.size()[3], x.size()[4]):
+      embedding_batch = self.resnet(image_batch).squeeze()
+      resnet_embeddings_seq = torch.cat((resnet_embeddings_seq, embedding_batch.unsqueeze(dim=0)), dim=0)
+    h0, c0 = torch.randn(1, resnet_embeddings_seq.size(1), self.hidden_dim).to(self.device), torch.randn(1, resnet_embeddings_seq.size(1), self.hidden_dim).to(self.device)
+    output, (hn, cn) = self.lstm(resnet_embeddings_seq, (h0, c0))
+    output = output[-1, :, :]
+    prediction = self.predictor(output)
+    return prediction
+
 class RegressionResNet18EmbedTransform(nn.Module):
   """
   Base ResNet18 modified to fit a regression task and to change 512 dimension embedding. Expects an image as input, and will output a real number prediction.

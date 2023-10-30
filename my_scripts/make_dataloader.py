@@ -106,6 +106,56 @@ class ImageAndExtraFeaturesDataset(Dataset):
     else:
       return img, torch.cat((time_stamp, current_ghi_cs, future_ghi_cs, future_ghi, ghi), dim=0)
 
+class ImageSequenceDataset(Dataset):
+  """
+  Dataset that contains the sequence of images and the label for the sequence.
+
+  Args:
+  paths: Path where the image data is being stored.
+  transform: Transform to be applied to the image.
+  label: Corresponding label to the images, at time t = datetime_index + delta_t.
+  datetime_index: Date time index of the features and labels, must be in pandas.DateTimeIndex format.
+  ghi_cs: The clear sky ghi at t = datetime_index.
+  future_ghi_cs: The clear sky ghi at t = datetime_index + delta_t.
+  future_ghi: The ghi at t = datetime_index + delta_t. Used to plot loss curves in the ghi scale when target is kt. 
+  extra_features: Extra features that are to be used when training the model. Defatult = None.
+  """
+  def __init__(self, paths, transform, label, datetime_index, ghi_cs, future_ghi_cs, future_ghi, extra_features=None):
+    self.paths = paths
+    self.transform = transform
+    self.label = label
+    self.datetime_index = datetime_index
+    self.ghi_cs = ghi_cs
+    self.future_ghi_cs = future_ghi_cs
+    self.future_ghi = future_ghi
+    self.extra_features = extra_features
+
+  def __len__(self):
+    return len(self.paths)
+
+  def __getitem__(self, index):
+    image_paths = self.paths.iloc[index]
+    time_stamp = self.datetime_index[index]
+    current_ghi_cs = self.ghi_cs[index] 
+    future_ghi_cs = self.future_ghi_cs[index]
+    future_ghi = self.future_ghi[index]
+    time_stamp = torch.tensor(np.array([time_stamp.timestamp()]))
+    ghi = self.label[index]
+
+    img_sequence = torch.tensor([])
+    for path in image_paths:
+      img = read_image(path)
+      img = img[:, 20:245, 10:235] #Crop image 
+      img = self.transform(img) #Other transforms
+      img = img.unsqueeze(dim=0)
+      img_sequence = torch.cat((img_sequence, img), dim=0)
+      
+    if self.extra_features != None:
+      extra_features = self.extra_features[index]
+      return img_sequence, torch.cat((time_stamp, current_ghi_cs, future_ghi_cs, future_ghi, ghi, extra_features), dim=0)
+    else:
+      return img_sequence, torch.cat((time_stamp, current_ghi_cs, future_ghi_cs, future_ghi, ghi), dim=0)
+
 def make_dataloaders(
   df_train: pd.DataFrame,
   df_test: pd.DataFrame,

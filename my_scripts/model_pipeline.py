@@ -5,7 +5,7 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18, RegressionResNet18EmbedTransform, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
+from make_models import RegressionResNet18, RecursiveResNet18AndLSTM, RegressionResNet18EmbedTransform, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torchinfo import summary
@@ -31,11 +31,13 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
 
     #Create the dataloaders
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
-
+#weights, dropout, hidden_dim, lstm_layers, device
     #Create the model
     assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"], sun_mask=hyperparameters["sun_mask"]).to(hyperparameters["device"])
+    elif hyperparameters["model_name"] == "RecursiveResNet18AndLSTM":
+      model = RecursiveResNet18AndLSTM(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], hidden_dim=hyperparameters["hidden_dim"], lstm_layers=hyperparameters["lstm_layers"], device=hyperparameters["device"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RegressionResNet18EmbedTransform":
       model = RegressionResNet18EmbedTransform(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], hidden_units=hyperparameters["hidden_units"], fine_tuning=hyperparameters["fine_tuning"], stacked=hyperparameters["stacked"]).to(hyperparameters["device"])  
     elif hyperparameters["model_name"] == "RegressionResNet50":
