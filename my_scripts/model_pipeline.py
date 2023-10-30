@@ -33,7 +33,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
 #weights, dropout, hidden_dim, lstm_layers, device
     #Create the model
-    assert hyperparameters["model_name"] in ["RegressionResNet18", "RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"], sun_mask=hyperparameters["sun_mask"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RecursiveResNet18AndLSTM":
