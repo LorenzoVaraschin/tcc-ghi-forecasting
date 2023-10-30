@@ -79,7 +79,7 @@ class RecursiveResNet18AndLSTM(nn.Module):
 
   def forward(self, x):
     #x has shape (batch_size, seq_size, n_channels, image_height, image_width)
-    resnet_embeddings_seq = torch.tensor([])
+    resnet_embeddings_seq = torch.tensor([]).to(self.device)
     for image_batch in x.view(x.size()[1], x.size()[0], x.size()[2], x.size()[3], x.size()[4]):
       embedding_batch = self.resnet(image_batch).squeeze()
       resnet_embeddings_seq = torch.cat((resnet_embeddings_seq, embedding_batch.unsqueeze(dim=0)), dim=0)
