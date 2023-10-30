@@ -216,42 +216,76 @@ def make_dataloaders(
     train_sun_center_list = None
     test_sun_center_list = None
     val_sun_center_list = None
+  
+  if config["model_name"] != "RecursiveResNet18AndLSTM":
+    train_data = ImageAndExtraFeaturesDataset(
+      paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_train[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_train.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_train["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      sun_center=train_sun_center_list,
+      extra_features=train_extra_features
+    )
 
-  train_data = ImageAndExtraFeaturesDataset(
-    paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
-    transform=img_transform,
-    label=torch.tensor(list(df_train[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    datetime_index=df_train.index[0::config["sample_rate"]],
-    ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    future_ghi=torch.tensor(list(df_train["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    sun_center=train_sun_center_list,
-    extra_features=train_extra_features
-  )
+    test_data = ImageAndExtraFeaturesDataset(
+      paths=df_test["path"][0::config["sample_rate"]] if not config["stacked"] else df_test[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_test[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_test.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_test["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      sun_center=test_sun_center_list,
+      extra_features=test_extra_features
+    )
 
-  test_data = ImageAndExtraFeaturesDataset(
-    paths=df_test["path"][0::config["sample_rate"]] if not config["stacked"] else df_test[["path_t-2x", "path_t-x", "path_t"]],
-    transform=img_transform,
-    label=torch.tensor(list(df_test[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    datetime_index=df_test.index[0::config["sample_rate"]],
-    ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    future_ghi=torch.tensor(list(df_test["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    sun_center=test_sun_center_list,
-    extra_features=test_extra_features
-  )
+    val_data = ImageAndExtraFeaturesDataset(
+      paths=df_val["path"][0::config["sample_rate"]] if not config["stacked"] else df_val[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_val[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_val.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_val["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      sun_center=val_sun_center_list,
+      extra_features=val_extra_features
+    )
+  else:
+    train_data = ImageSequenceDataset(
+      paths=df_train["path"][0::config["sample_rate"]] if not config["stacked"] else df_train[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_train[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_train.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_train["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_train["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      extra_features=train_extra_features
+    )
 
-  val_data = ImageAndExtraFeaturesDataset(
-    paths=df_val["path"][0::config["sample_rate"]] if not config["stacked"] else df_val[["path_t-2x", "path_t-x", "path_t"]],
-    transform=img_transform,
-    label=torch.tensor(list(df_val[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    datetime_index=df_val.index[0::config["sample_rate"]],
-    ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
-    future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    future_ghi=torch.tensor(list(df_val["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
-    sun_center=val_sun_center_list,
-    extra_features=val_extra_features
-  )
+    test_data = ImageSequenceDataset(
+      paths=df_test["path"][0::config["sample_rate"]] if not config["stacked"] else df_test[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_test[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_test.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_test["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_test["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      extra_features=test_extra_features
+    )
+
+    val_data = ImageSequenceDataset(
+      paths=df_val["path"][0::config["sample_rate"]] if not config["stacked"] else df_val[["path_t-2x", "path_t-x", "path_t"]],
+      transform=img_transform,
+      label=torch.tensor(list(df_val[config["target"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      datetime_index=df_val.index[0::config["sample_rate"]],
+      ghi_cs=torch.tensor(list(df_val["current_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1),
+      future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      future_ghi=torch.tensor(list(df_val["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
+      extra_features=val_extra_features
+    )
 
   train_dataloader = DataLoader(
     dataset=train_data,
