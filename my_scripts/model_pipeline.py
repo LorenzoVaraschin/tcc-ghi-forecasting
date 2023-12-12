@@ -97,6 +97,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
       target=hyperparameters["target"],
       device=hyperparameters["device"],
       VAL_LOSS=VAL_LOSS,
+      random_seed=hyperparameters["random_seed"],
       MODEL_CHECKPOINT=hyperparameters["model_checkpoint"],
       num_extra_features=hyperparameters["num_extra_features"]   
     )
