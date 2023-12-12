@@ -145,7 +145,7 @@ def test_epoch(model, dataloader, loss_fn, target, device, dataset="test", t_cls
   else:
     return test_loss, test_rmse
 
-def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, VAL_LOSS, seed, MODEL_CHECKPOINT=False, num_extra_features=0):
+def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, scheduler, scheduler_name, epochs, t_cls, target, device, VAL_LOSS, random_seed, MODEL_CHECKPOINT=False, num_extra_features=0):
   """
   Trains and validates the model for the number of epochs specified.
 
@@ -167,7 +167,7 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
   """
   wandb.watch(model, loss_fn, log="all", log_freq=100)
   PATH = "/content/model_checkpoint.pt" #Path to sabe model checkpoint
-  torch.manual_seed(seed)
+  torch.manual_seed(random_seed)
   for epoch in range(epochs):
     if (epoch > 0) & (MODEL_CHECKPOINT == True):
       #Load the saved checkopoint
