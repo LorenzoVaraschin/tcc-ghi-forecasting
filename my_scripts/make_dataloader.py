@@ -160,7 +160,8 @@ def make_dataloaders(
   df_train: pd.DataFrame,
   df_test: pd.DataFrame,
   df_val: pd.DataFrame,
-  config: dict
+  config: dict,
+  sampler
 ):
   """
   Transforms a pandas DataFrame into a PyTorch DataLoader.
@@ -293,7 +294,7 @@ def make_dataloaders(
     num_workers=config["num_workers"],
     prefetch_factor=config["prefetch_factor"],
     pin_memory=config["pin_memory"],
-    shuffle=config["shuffle_train"]
+    sampler=sampler
   )
 
   test_dataloader = DataLoader(
