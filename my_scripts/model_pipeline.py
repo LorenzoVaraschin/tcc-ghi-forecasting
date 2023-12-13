@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torchinfo import summary
 
 
-def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val):
+def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val, sampler):
   """
   Creates the model and dataloaders and trains/tests the model. Log the results in wandb.
 
@@ -30,7 +30,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     config = wandb.config
 
     #Create the dataloaders
-    train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters)
+    train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters, sampler=sampler)
 
     #Create the model
     assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
