@@ -294,7 +294,7 @@ def make_dataloaders(
     num_workers=config["num_workers"],
     prefetch_factor=config["prefetch_factor"],
     pin_memory=config["pin_memory"],
-    sampler=sampler
+    shuffle=True
   )
 
   test_dataloader = DataLoader(
