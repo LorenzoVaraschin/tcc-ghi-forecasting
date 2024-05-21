@@ -66,7 +66,8 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     if hyperparameters["optimizer"] == "adam":
       optimizer = torch.optim.Adam(
         params=model.parameters(),
-        lr=hyperparameters["learning_rate"]
+        lr=hyperparameters["learning_rate"],
+        weight_decay=hyperparameters["weight_decay"]
       )
 
     #Create the scheduler
