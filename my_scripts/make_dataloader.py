@@ -63,6 +63,7 @@ class ImageAndExtraFeaturesDataset(Dataset):
     self.future_ghi_cs = future_ghi_cs
     self.future_ghi = future_ghi
     self.sun_center = sun_center
+    self.rotation_angle = rotation_angle
 
   def __len__(self):
     return len(self.paths)
@@ -90,7 +91,7 @@ class ImageAndExtraFeaturesDataset(Dataset):
       img = torch.cat((img_0, img_1, img_2), dim=0)
     else: #Single images
       img = read_image(image_path)
-      if rotation_angle != 0:
+      if self.rotation_angle != 0:
         img = torchvision.transforms.functional.rotate(img, rotation_angle)
       if self.sun_center != None:
         img = self.transform(img)
