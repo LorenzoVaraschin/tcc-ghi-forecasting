@@ -53,7 +53,7 @@ class ImageAndExtraFeaturesDataset(Dataset):
   future_ghi: The ghi at t = datetime_index + delta_t. Used to plot loss curves in the ghi scale when target is kt. 
   extra_features: Extra features that are to be used when training the model. Defatult = None.
   """
-  def __init__(self, paths, transform, label, datetime_index, ghi_cs, future_ghi_cs, future_ghi, sun_center=None, extra_features=None):
+  def __init__(self, paths, transform, label, datetime_index, ghi_cs, future_ghi_cs, future_ghi, sun_center=None, extra_features=None, rotation_angle=0):
     self.paths = paths
     self.transform = transform
     self.label = label
@@ -90,6 +90,8 @@ class ImageAndExtraFeaturesDataset(Dataset):
       img = torch.cat((img_0, img_1, img_2), dim=0)
     else: #Single images
       img = read_image(image_path)
+      if rotation_angle != 0:
+        img = torchvision.transforms.functional.rotate(img, rotation_angle)
       if self.sun_center != None:
         img = self.transform(img)
         mask = np.zeros((64, 64))
@@ -228,7 +230,8 @@ def make_dataloaders(
       future_ghi_cs=torch.tensor(list(df_train["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       future_ghi=torch.tensor(list(df_train["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       sun_center=train_sun_center_list,
-      extra_features=train_extra_features
+      extra_features=train_extra_features,
+      rotation_angle=config["rotation_angle"]
     )
 
     test_data = ImageAndExtraFeaturesDataset(
@@ -240,7 +243,8 @@ def make_dataloaders(
       future_ghi_cs=torch.tensor(list(df_test["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       future_ghi=torch.tensor(list(df_test["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       sun_center=test_sun_center_list,
-      extra_features=test_extra_features
+      extra_features=test_extra_features,
+      rotation_angle=config["rotation_angle"]
     )
 
     val_data = ImageAndExtraFeaturesDataset(
@@ -252,7 +256,8 @@ def make_dataloaders(
       future_ghi_cs=torch.tensor(list(df_val["future_ghi_cs_"+config["cs_model"]][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       future_ghi=torch.tensor(list(df_val["future_ghi"][0::config["sample_rate"]]), dtype=torch.float64).unsqueeze(1), #used to plot loss curves in ghi scale
       sun_center=val_sun_center_list,
-      extra_features=val_extra_features
+      extra_features=val_extra_features,
+      rotation_angle=config["rotation_angle"]
     )
   else:
     train_data = ImageSequenceDataset(
