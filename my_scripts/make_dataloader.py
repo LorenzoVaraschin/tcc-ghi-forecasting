@@ -92,7 +92,7 @@ class ImageAndExtraFeaturesDataset(Dataset):
     else: #Single images
       img = read_image(image_path)
       if self.rotation_angle != 0:
-        img = torchvision.transforms.functional.rotate(img, rotation_angle)
+        img = transforms.functional.rotate(img, rotation_angle)
       if self.sun_center != None:
         img = self.transform(img)
         mask = np.zeros((64, 64))
