@@ -335,6 +335,10 @@ def make_dataloaders(
   temp_transform = transforms.ConvertImageDtype(dtype=torch.uint8)
   img = train_features[0]
   img = img.permute(1, 2, 0)
+  if config["sun_mask"] == True:
+    mask = img[:, :, 3]
+    plt.imshow(mask)
+    plt.show()
   img = temp_transform(img[:, :, :3]*torch.tensor([0.229, 0.224, 0.225]) + torch.tensor([0.485, 0.456, 0.406]))
   img = np.array(img)
   img = Image.fromarray(img)
