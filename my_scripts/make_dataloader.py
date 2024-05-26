@@ -6,6 +6,8 @@ Datasets must be one of two:
 """
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
 import pandas as pd
 import cv2
 from torchvision.io import read_image
@@ -330,6 +332,13 @@ def make_dataloaders(
   )
 
   train_features, train_labels = next(iter(train_dataloader))
+  img = train_features[0]
+  img = img.permute(1, 2, 0)
+  img = np.array(img)
+  img = Image.fromarray(img)
+  img = img.convert("RGBA")
+  plt.imshow(img)
+  plt.show()
   print(f"Feature batch shape: {train_features.size()}")
   print(f"Labels batch shape: {train_labels.size()}")
 
