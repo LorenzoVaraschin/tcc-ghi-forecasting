@@ -62,12 +62,25 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     elif hyperparameters["loss_fn"] == "huber_loss":
       loss_fn = torch.nn.HuberLoss(delta=hyperparameters["huber_delta"])
 
-    assert hyperparameters["optimizer"] in ["adam"], "Invalid optimizer"
+    assert hyperparameters["optimizer"] in ["adam", "adamw", "sgd"], "Invalid optimizer"
     if hyperparameters["optimizer"] == "adam":
       optimizer = torch.optim.Adam(
         params=model.parameters(),
         lr=hyperparameters["learning_rate"],
         weight_decay=hyperparameters["weight_decay"]
+      )
+    elif hyperparameters["optimizer"] == "adamw":
+      optimizer = torch.optim.AdamW(
+        params=model.parameters(),
+        lr=hyperparameters["learning_rate"],
+        weight_decay=hyperparameters["weight_decay"]
+      )
+    elif hyperparameters["optimizer"] == "sgd":
+      optimizer = torch.optim.SGD(
+        params=model.parameters(),
+        lr=hyperparameters["learning_rate"],
+        weight_decay=hyperparameters["weight_decay"],
+        momentum=0.9
       )
 
     #Create the scheduler
