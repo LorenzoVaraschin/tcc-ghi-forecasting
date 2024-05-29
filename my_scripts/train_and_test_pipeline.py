@@ -169,7 +169,7 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
   PATH = "/content/model_checkpoint.pt" #Path to sabe model checkpoint
   torch.manual_seed(random_seed)
   for epoch in range(epochs):
-    if (epoch > 0) & (MODEL_CHECKPOINT == True):
+    if (epoch > 4) & (MODEL_CHECKPOINT == True):
       #Load the saved checkopoint
       checkpoint = torch.load(PATH)
       model.load_state_dict(checkpoint['model_state_dict'])
@@ -205,7 +205,8 @@ def train_model(model, train_dataloader, val_dataloader, optimizer, loss_fn, sch
     else:
       scheduler.step()
 
-    if val_loss < VAL_LOSS:
+    
+    if (epoch > 3) & (val_loss < VAL_LOSS):
       #Save the new checkpoint
       torch.save({
             'epoch': epoch,
