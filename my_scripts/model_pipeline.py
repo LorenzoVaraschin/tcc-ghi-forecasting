@@ -116,6 +116,14 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
       num_extra_features=hyperparameters["num_extra_features"]   
     )
 
+    #eval test on checkpoint
+    PATH = "/content/model_checkpoint.pt" #Path to sabe model checkpoint
+    if MODEL_CHECKPOINT == True:
+      #Load the saved checkopoint
+      checkpoint = torch.load(PATH)
+      model.load_state_dict(checkpoint['model_state_dict'])
+      optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+      
     #Test the model
     test_loss, test_rmse, test_mae, predictions_ghi, predictions_kt, pred_timestamps = test_epoch(
       model=model,
