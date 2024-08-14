@@ -5,7 +5,7 @@ import torch
 import wandb
 
 from make_dataloader import make_dataloaders
-from make_models import RegressionResNet18, RecursiveResNet18AndLSTM, RegressionResNet18EmbedTransform, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16
+from make_models import RegressionResNet18, RecursiveResNet18AndLSTM, RegressionResNet18EmbedTransform, RegressionResNet50, RegressionResNet18ExtraFeatures, SunsetModel, RegressionVGG16, RegressionViT32
 from train_and_test_pipeline import train_model, test_epoch
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torchinfo import summary
@@ -33,7 +33,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters, sampler=sampler)
 
     #Create the model
-    assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16"], "Invalid model name"
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16", "RegressionViT32"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"], sun_mask=hyperparameters["sun_mask"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RecursiveResNet18AndLSTM":
@@ -49,6 +49,8 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
       model = SunsetModel(dropout=hyperparameters["dropout"])
     elif hyperparameters["model_name"] == "RegressionVGG16":
       model = RegressionVGG16(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
+    elif hyperparameters["model_name"] == "RegressionViT32":
+      model = RegressionViT32(image_size=hyperparameters["img_size"], weights=hyperparameters["weights"])
 
     model_sum = summary(model=model, input_size=hyperparameters["input_shape"], col_names=["input_size", "output_size", "num_params", "trainable"], col_width=20, row_settings=["var_names"])
     print(model_sum)
