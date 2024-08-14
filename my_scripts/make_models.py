@@ -43,6 +43,18 @@ class RegressionResNet18(nn.Module):
     x = self.resnet(x)
     return x
 
+class RegressionViT32(nn.Module):
+  def __init__(self, image_size=224, weights="ViT_B_32_Weights.DEFAULT"):
+    super().__init__()
+    self.vit = torchvision.models.vit_b_32(weights=weights, image_size=image_size)  
+    self.vit.heads = nn.Sequential(
+      nn.Linear(in_features=768, out_features=1)
+    )
+        
+  def forward(self, x):
+    x = self.vit(x)
+    return x
+
 
 class RecursiveResNet18AndLSTM(nn.Module):
   """
