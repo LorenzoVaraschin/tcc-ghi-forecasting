@@ -118,8 +118,9 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
 
     #eval test on checkpoint
     PATH = "/content/model_checkpoint.pt" #Path to sabe model checkpoint
-    if MODEL_CHECKPOINT == True:
+    if hyperparameters["model_checkpoint"] == True:
       #Load the saved checkopoint
+      print("\n\nLoading checkpoint...\n\n")
       checkpoint = torch.load(PATH)
       model.load_state_dict(checkpoint['model_state_dict'])
       optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
