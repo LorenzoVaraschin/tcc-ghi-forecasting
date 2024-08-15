@@ -43,6 +43,92 @@ class RegressionResNet18(nn.Module):
     x = self.resnet(x)
     return x
 
+class RegressionUNet(nn.Module):
+  def __init__(self, num_filters=12, dropout=0.4, image_size=(64, 64)):
+    super().__init__()
+    self.top_layer1 = nn.Sequential(
+        nn.Conv2d(in_channels=3, out_channels=num_filters, kernel_size=(1, 1), padding='same'),
+        nn.Conv2d(in_channels=num_filters, out_channels=num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(num_filters),
+        nn.ReLU()
+    )
+    self.mid_layer1 = nn.Sequential(
+        nn.MaxPool2d(kernel_size=(2, 2), stride=2),
+        nn.Conv2d(in_channels=num_filters, out_channels=2*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(2*num_filters),
+        nn.ReLU()
+    )
+    self.bot_layer1 = nn.Sequential(
+        nn.MaxPool2d(kernel_size=(2, 2), stride=2),
+        nn.Conv2d(in_channels=2*num_filters, out_channels=4*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(4*num_filters),
+        nn.ReLU()
+    )
+    self.bottleneck1 = nn.Sequential(
+        nn.Conv2d(in_channels=4*num_filters, out_channels=4*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(4*num_filters),
+        nn.ReLU(),
+        nn.Conv2d(in_channels=4*num_filters, out_channels=4*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(4*num_filters)
+    )
+    self.bottlenck2 = nn.Sequential(
+        nn.Conv2d(in_channels=4*num_filters, out_channels=4*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(4*num_filters),
+        nn.ReLU(),
+        nn.Conv2d(in_channels=4*num_filters, out_channels=4*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(4*num_filters)
+    )
+    self.bot_upsample = nn.Sequential(
+        nn.Upsample(scale_factor=(2, 2), mode='nearest'),
+        nn.Conv2d(in_channels=4*num_filters, out_channels=2*num_filters, kernel_size=(3, 3), padding='same')
+    )
+    self.mid_layer2 = nn.Sequential(
+        nn.Conv2d(in_channels=4*num_filters, out_channels=2*num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(2*num_filters),
+        nn.ReLU(),
+        nn.Dropout(p=dropout)
+    )
+    self.mid_upsample = nn.Sequential(
+        nn.Upsample(scale_factor=(2, 2), mode='nearest'),
+        nn.Conv2d(in_channels=2*num_filters, out_channels=num_filters, kernel_size=(3, 3), padding='same')
+    )
+    self.top_layer2 = nn.Sequential(
+        nn.Conv2d(in_channels=2*num_filters, out_channels=num_filters, kernel_size=(3, 3), padding='same'),
+        nn.BatchNorm2d(num_filters),
+        nn.ReLU(),
+        nn.Dropout(p=dropout)
+    )
+    self.flatten_layer = nn.Sequential(
+        nn.Conv2d(in_channels=num_filters, out_channels=1, kernel_size=(1, 1), padding='same'),
+        nn.ReLU(),
+        nn.Flatten()
+    )
+    self.linear_regressor = nn.Linear(in_features=image_size[0]*image_size[0], out_features=1)
+  def forward(self, x):
+    top_output1 = self.top_layer1(x)
+
+    mid_output1 = self.mid_layer1(top_output1)
+
+    bot_output1 = self.bot_layer1(mid_output1)
+
+    identity = bot_output1
+    bottleneck_out = self.bottleneck1(bot_output1)
+    bottleneck_out += identity
+
+    identity = bottleneck_out
+    bottleneck_out = self.bottlenck2(bottleneck_out)
+    bottleneck_out += identity
+    
+    mid_output2 = self.bot_upsample(bottleneck_out)
+    mid_output2 = self.mid_layer2(torch.cat((mid_output2, mid_output1), axis=1))
+
+    top_output2 = self.mid_upsample(mid_output2)
+    top_output2 = self.top_layer2(torch.cat((top_output2, top_output1), axis=1))
+    top_output2 = self.flatten_layer(top_output2)
+
+    prediction = self.linear_regressor(top_output2)
+    return prediction
+    
 class RegressionViT32(nn.Module):
   def __init__(self, image_size=224, weights="ViT_B_32_Weights.DEFAULT"):
     super().__init__()
