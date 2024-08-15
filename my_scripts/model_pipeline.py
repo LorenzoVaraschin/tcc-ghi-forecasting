@@ -33,7 +33,7 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
     train_dataloader, test_dataloader, val_dataloader = make_dataloaders(df_train=df_train, df_test=df_test, df_val=df_val, config=hyperparameters, sampler=sampler)
 
     #Create the model
-    assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16", "RegressionViT32"], "Invalid model name"
+    assert hyperparameters["model_name"] in ["RegressionResNet18", "RecursiveResNet18AndLSTM","RegressionResNet18EmbedTransform", "RegressionResNet50", "RegressionResNet18ExtraFeatures", "SunsetModel", "RegressionVGG16", "RegressionViT32", "RegressionUNet"], "Invalid model name"
     if hyperparameters["model_name"] == "RegressionResNet18":
       model = RegressionResNet18(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"], stacked=hyperparameters["stacked"], sun_mask=hyperparameters["sun_mask"]).to(hyperparameters["device"])
     elif hyperparameters["model_name"] == "RecursiveResNet18AndLSTM":
@@ -51,6 +51,8 @@ def model_pipeline(project, run_name, hyperparameters, df_train, df_test, df_val
       model = RegressionVGG16(weights=hyperparameters["weights"], dropout=hyperparameters["dropout"])
     elif hyperparameters["model_name"] == "RegressionViT32":
       model = RegressionViT32(image_size=hyperparameters["img_size"], weights=hyperparameters["weights"])
+    elif hyperparameters["model_name"] == "RegressionUNet":
+      model = RegressionUNet(dropout=hyperparameters["dropout"], num_filters=hyperparameters["num_filters"], image_size=(hyperparameters["img_size"], hyperparameters["img_size"]))
 
     model_sum = summary(model=model, input_size=hyperparameters["input_shape"], col_names=["input_size", "output_size", "num_params", "trainable"], col_width=20, row_settings=["var_names"])
     print(model_sum)
